@@ -113,7 +113,7 @@ int createLeague();
 void registerClubs(int, ifstream&);
 void registerClubs(int, ifstream&, istream&);
 
-void readInt (int& n);
+void readInt (int&);
 int countNames (ifstream&);
 void showHeader(string);
 void showFooter();

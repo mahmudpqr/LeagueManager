@@ -155,7 +155,7 @@ void generateFixture(League& league) {
 
 void enterMatch(League& league, bool showResult = true) {
     if (league.nextMatchIndex >= league.matches.size()) {
-        cout << "\n\tSeason completed!\n";
+        cout << "\n\tSeason completed\n";
         return;
     }
     
@@ -170,7 +170,7 @@ void enterMatch(League& league, bool showResult = true) {
     match->getClub2()->updateClubStats(s2, s1);
 
     if (showResult) {
-        showHeader("Full time!");
+        showHeader("Full time");
         cout << "\n\t" << string(13, ' ');
         match->showMatchResult();
         cout << "\n";
@@ -179,7 +179,7 @@ void enterMatch(League& league, bool showResult = true) {
 
 void completeSeason(League& league) {
     if (league.nextMatchIndex >= league.matches.size()) {
-        cout << "\n\tSeason completed!\n";
+        cout << "\n\tSeason completed\n";
         return;
     }
 
@@ -187,7 +187,7 @@ void completeSeason(League& league) {
         enterMatch(league, false);
     }
 
-    cout << "\n\tSeason completed!\n";
+    cout << "\n\tSeason completed\n";
 }
 
 void showMatchHistory(League& league) {
@@ -195,7 +195,7 @@ void showMatchHistory(League& league) {
     showHeader("Match History");
 
     if(matchCount == 0) {
-        cout << "\n\tNo matches yet!\n";
+        cout << "\n\tNo matches yet\n";
         return;
     }
 
@@ -325,19 +325,27 @@ void showTopPlayers(League& league) {
 }
 
 int createLeague() {
-    string lName;
-    cout << "\n\tLeague name: ";
     cin.ignore();
-    getline(cin,lName);
+    string lName;
+
+    while (true) {
+        cout << "\n\tLeague name: ";
+        getline(cin, lName);
+
+        if (lName.empty() || lName.size() > 67) {
+            cerr << "\tInvalid name!\n";
+        } else break;
+    }
 
     leagues.emplace_back(lName);
 
     int cNum;
-    while(1) {
-        cout << "\tNumber of clubs (2-20): ";
+    while (true) {
+        cout << "\n\tNumber of clubs (2-20): ";
         readInt(cNum);
+
         if (cNum < 2 || cNum > 20) {
-            cerr << "\tInvalid input!\n";
+            cerr << "\tInvalid number!\n";
         } else break;
     }
 
@@ -348,12 +356,18 @@ void registerClubs(int cNum, ifstream& pFile) {
     vector<Position> formation = {GK, DEF, DEF, DEF, DEF, MID, MID, MID, FW, FW, FW};
 
     cin.ignore();
-    cout << "\n";
 
     for (int i = 0; i < cNum; i++) {
         string cName;
-        cout << "\tClub " << i + 1 << ": ";
-        getline(cin,cName);
+
+        while (true) {
+            cout << "\n\tClub " << i + 1 << ": ";
+            getline(cin, cName);
+            
+            if (cName.empty() || cName.size() > 18) {
+                cerr << "\tInvalid name!\n";
+            } else break;
+        }
 
         clubs.emplace_back(cName);
         leagues.back().addClub(&clubs.back());
@@ -367,7 +381,7 @@ void registerClubs(int cNum, ifstream& pFile) {
         }
     }
 
-    cout << "\n\tRegistration complete!\n";
+    cout << "\n\tRegistration complete\n";
 }
 
 void registerClubs(int cNum, ifstream& cFile, istream& pFile) {
@@ -389,7 +403,7 @@ void registerClubs(int cNum, ifstream& cFile, istream& pFile) {
         }
     }
 
-    cout << "\n\tRegistration complete!\n";
+    cout << "\n\tRegistration complete\n";
 }
 
 void readInt (int& n) {
@@ -434,7 +448,7 @@ int main() {
     clubs.reserve(200);
     players.reserve(2200);
 
-    while (1) {
+    while (true) {
         showHeader("Main Menu");
         cout << "\n\t1. New league"
             << "\n\t2. Load league"
@@ -448,12 +462,12 @@ int main() {
 
         if (x == 1) {
             if (lNum >= 10) {
-                cout << "\n\tMax limit reached!\n";
+                cout << "\n\tMax limit reached\n";
                 continue;
             }
             int cNum = createLeague();
 
-            while(1) {
+            while (true) {
                 showHeader("New League");
                 cout << "\n\t1. Register clubs"
                     << "\n\t2. Auto register"
@@ -467,14 +481,10 @@ int main() {
 
                 if (y == 1) {
                     ifstream pFile("Players.txt");
-                    if (!pFile) {
-                        cerr << "\n\tNo players found!\n";
-                        continue;
-                    }
-
                     int pNames = countNames(pFile);
-                    if (pNames < cNum * 11) {
-                        cerr << "\n\tNot enough players available!\n";
+
+                    if (!pFile || pNames < cNum * 11) {
+                        cerr << "\n\tPlayers missing\n";
                         continue;
                     }
     
@@ -486,20 +496,17 @@ int main() {
                 } else if (y == 2) {
                     ifstream cFile("Clubs.txt");
                     ifstream pFile("Players.txt");
-                    if (!cFile || !pFile) {
-                        cerr << "\n\tNo clubs or players found!\n";
-                        continue;
-                    }
 
                     int cNames = countNames(cFile);
-                    if (cNames < cNum) {
-                        cerr << "\n\tNot enough clubs available!\n";
+                    int pNames = countNames(pFile);
+
+                    if (!cFile || cNames < cNum) {
+                        cerr << "\n\tClubs missing\n";
                         continue;
                     }
-
-                    int pNames = countNames(pFile);
-                    if (pNames < cNum * 11) {
-                        cerr << "\n\tNot enough players available!\n";
+                    
+                    if (!pFile || pNames < cNum * 11) {
+                        cerr << "\n\tPlayers missing\n";
                         continue;
                     }
 
@@ -516,10 +523,10 @@ int main() {
                 }
             }
         } else if (x == 2) {
-            while (1) {
+            while (true) {
                 showHeader("Load League");
                 if (leagues.empty()) {
-                    cerr << "\n\tNo leagues found!\n";
+                    cerr << "\n\tNo leagues found\n";
                     break;
                 }
 
@@ -539,7 +546,7 @@ int main() {
                 if (y >= 1 && y < i ) {
                     League& l = leagues[y - 1];
 
-                    while (1) {
+                    while (true) {
                         showHeader(l.getName());
                         cout << "\n\t1. Enter match"
                             << "\n\t2. Complete season"
