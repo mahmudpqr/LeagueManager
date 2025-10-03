@@ -55,7 +55,7 @@ public:
 
     string getName();
     void addPlayer(Player*);
-    void updateClubStats(int, int, int);
+    void updateClubStats(int, int);
 
     friend void showStandings(League&);
     friend bool compareClubs(Club*, Club*);
@@ -110,7 +110,7 @@ void showStandings(League&);
 void showTopPlayers(League&);
 
 int createLeague();
-void registerClubs(int, ifstream&, istream&);
+void registerClubs(int, ifstream&);
 void registerClubs(int, ifstream&, istream&);
 
 void readInt (int& n);

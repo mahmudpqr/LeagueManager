@@ -5,6 +5,10 @@ mt19937 gen(rd());
 uniform_real_distribution<> randomRating(5.0, 9.5);
 uniform_int_distribution<> randomScore(0, 4);
 
+vector<League> leagues;
+vector<Club> clubs;
+vector<Player> players;
+
 Player::Player() {}
 Player::Player(string pName, Position pos, Club* cl) : name(pName), position(pos), club(cl) {
     club->addPlayer(this);
@@ -41,9 +45,9 @@ double Player::getRating() {
     return avgRating;
 }
 
-void Player::updateRating(double rating, int matchNum) {
-    if (matchNum == 0) return;
-    avgRating = ((avgRating * (matchNum - 1)) + rating) / (double)matchNum;
+void Player::updateRating(double rating, int matchesPlayed) {
+    if (matchesPlayed == 0) return;
+    avgRating = ((avgRating * (matchesPlayed - 1)) + rating) / (double)matchesPlayed;
 }
 
 Club::Club() {}
@@ -57,7 +61,7 @@ void Club::addPlayer(Player* player) {
     squad.push_back(player);
 }
 
-void Club::updateClubStats(int scored, int conceded, int matchNum) {
+void Club::updateClubStats(int scored, int conceded) {
     matchesPlayed++;
     goalsFor += scored;
     goalsAgainst += conceded;
@@ -75,7 +79,7 @@ void Club::updateClubStats(int scored, int conceded, int matchNum) {
 
     for (Player* p : squad) {
         double rating = randomRating(gen);
-        p->updateRating(rating, matchNum);
+        p->updateRating(rating, matchesPlayed);
     }
 }
 
@@ -156,14 +160,14 @@ void enterMatch(League& league, bool showResult = true) {
     }
     
     Match* match =league.matches[league.nextMatchIndex];
-    int matchNum = ++league.nextMatchIndex;
+    league.nextMatchIndex++;
 
     int s1 = randomScore(gen);
     int s2 = randomScore(gen);
 
     match->updateScores(s1, s2);
-    match->getClub1()->updateClubStats(s1, s2, matchNum);
-    match->getClub2()->updateClubStats(s2, s1, matchNum);
+    match->getClub1()->updateClubStats(s1, s2);
+    match->getClub2()->updateClubStats(s2, s1);
 
     if (showResult) {
         showHeader("Full time!");
@@ -187,15 +191,15 @@ void completeSeason(League& league) {
 }
 
 void showMatchHistory(League& league) {
-    int matchNum = league.nextMatchIndex;
+    int matchCount = league.nextMatchIndex;
     showHeader("Match History");
 
-    if(matchNum == 0) {
+    if(matchCount == 0) {
         cout << "\n\tNo matches yet!\n";
         return;
     }
 
-    for (int i = 0; i < matchNum; i++) {
+    for (int i = 0; i < matchCount; i++) {
         cout << "\n\tMatch " << setw(7) << i + 1;
         league.matches[i]->showMatchResult();
     }
@@ -320,10 +324,6 @@ void showTopPlayers(League& league) {
         << setw(20) << bestFW->getClub()->getName() << "\n";
 }
 
-vector<League> leagues;
-vector<Club> clubs;
-vector<Player> players;
-
 int createLeague() {
     string lName;
     cout << "\n\tLeague name: ";
@@ -364,7 +364,6 @@ void registerClubs(int cNum, ifstream& pFile) {
 
             players.emplace_back(pName, formation[j], &clubs.back());
             leagues.back().addPlayer(&players.back());
-            clubs.back().addPlayer(&players.back());
         }
     }
 
@@ -387,7 +386,6 @@ void registerClubs(int cNum, ifstream& cFile, istream& pFile) {
 
             players.emplace_back(pName, formation[j], &clubs.back());
             leagues.back().addPlayer(&players.back());
-            clubs.back().addPlayer(&players.back());
         }
     }
 
