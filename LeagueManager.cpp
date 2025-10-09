@@ -485,10 +485,12 @@ int main() {
 
                     if (!pFile || pNames < cNum * 11) {
                         cerr << "\n\tPlayers missing\n";
+                        pFile.close();
                         continue;
                     }
     
                     registerClubs(cNum, pFile);
+                    pFile.close();
                     generateFixture(leagues.back());
 
                     lNum++;
@@ -502,15 +504,21 @@ int main() {
 
                     if (!cFile || cNames < cNum) {
                         cerr << "\n\tClubs missing\n";
+                        cFile.close();
+                        pFile.close();
                         continue;
                     }
                     
                     if (!pFile || pNames < cNum * 11) {
                         cerr << "\n\tPlayers missing\n";
+                        cFile.close();
+                        pFile.close();
                         continue;
                     }
 
                     registerClubs(cNum, cFile, pFile);
+                    cFile.close();
+                    pFile.close();
                     generateFixture(leagues.back());
 
                     lNum++;
